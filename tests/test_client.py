@@ -84,7 +84,7 @@ class TestGenerateImage:
         generate_image(client, "A red apple", aspect_ratio="1:1", image_size="1K")
         client.models.generate_content.assert_called_once()
         call_kwargs = client.models.generate_content.call_args
-        assert call_kwargs.kwargs["model"] == "gemini-2.5-flash-image"
+        assert call_kwargs.kwargs["model"] == "gemini-3-pro-image-preview"
         assert call_kwargs.kwargs["contents"] == "A red apple"
 
     def test_valid_aspect_ratios(self) -> None:

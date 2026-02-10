@@ -8,7 +8,7 @@ import subprocess
 from google import genai
 from google.genai import types
 
-DEFAULT_MODEL = "gemini-2.5-flash-image"
+DEFAULT_MODEL = "gemini-3-pro-image-preview"
 DEFAULT_LOCATION = "us-central1"
 
 # Preview models that require the 'global' location on Vertex AI

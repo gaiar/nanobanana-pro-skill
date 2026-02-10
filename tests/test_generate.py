@@ -18,7 +18,7 @@ class TestBuildParser:
         assert args.prompt == "test prompt"
         assert args.aspect_ratio == "1:1"
         assert args.image_size == "2K"
-        assert args.model == "gemini-2.5-flash-image"
+        assert args.model == "gemini-3-pro-image-preview"
         assert args.no_open is False
         assert args.project is None
 
