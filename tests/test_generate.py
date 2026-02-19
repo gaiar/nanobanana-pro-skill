@@ -7,6 +7,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+from PIL import Image
 
 from nanobanana_pro.generate import _read_prompt, build_parser, main
 
@@ -21,6 +22,7 @@ class TestBuildParser:
         assert args.model == "gemini-3-pro-image-preview"
         assert args.no_open is False
         assert args.project is None
+        assert args.images is None
 
     def test_all_flags(self) -> None:
         parser = build_parser()
@@ -50,6 +52,29 @@ class TestBuildParser:
         args = parser.parse_args(["--prompt-file", "/tmp/prompt.txt"])
         assert args.prompt_file == "/tmp/prompt.txt"
         assert args.prompt is None
+
+    def test_single_image_flag(self) -> None:
+        parser = build_parser()
+        args = parser.parse_args(["prompt", "--image", "/tmp/photo.png"])
+        assert args.images == ["/tmp/photo.png"]
+
+    def test_multiple_image_flags(self) -> None:
+        parser = build_parser()
+        args = parser.parse_args(
+            [
+                "prompt",
+                "--image",
+                "/tmp/a.png",
+                "--image",
+                "https://example.com/b.jpg",
+            ]
+        )
+        assert args.images == ["/tmp/a.png", "https://example.com/b.jpg"]
+
+    def test_no_image_flag(self) -> None:
+        parser = build_parser()
+        args = parser.parse_args(["prompt"])
+        assert args.images is None
 
 
 class TestReadPrompt:
@@ -131,6 +156,46 @@ class TestMain:
 
         with pytest.raises(SystemExit):
             main(["A red apple", "--no-open"])
+
+    @patch("nanobanana_pro.generate.open_image")
+    @patch("nanobanana_pro.generate.ensure_output_dir")
+    @patch("nanobanana_pro.generate.generate_image")
+    @patch("nanobanana_pro.generate.create_client")
+    @patch("nanobanana_pro.generate.load_images")
+    def test_image_editing(
+        self,
+        mock_load_images: MagicMock,
+        mock_create: MagicMock,
+        mock_generate: MagicMock,
+        mock_output_dir: MagicMock,
+        mock_open: MagicMock,
+        tmp_path: Path,
+    ) -> None:
+        mock_output_dir.return_value = tmp_path
+        img = Image.new("RGB", (4, 4))
+        mock_load_images.return_value = [img]
+
+        mock_image = MagicMock()
+        mock_part = MagicMock()
+        mock_part.inline_data = b"fake"
+        mock_part.as_image.return_value = mock_image
+        mock_part.text = None
+        mock_response = MagicMock()
+        mock_response.parts = [mock_part]
+        mock_generate.return_value = mock_response
+
+        main(["Remove bg", "--image", "/tmp/photo.png", "--no-open"])
+
+        mock_load_images.assert_called_once_with(["/tmp/photo.png"])
+        mock_generate.assert_called_once()
+        call_kwargs = mock_generate.call_args.kwargs
+        assert call_kwargs["images"] == [img]
+
+    @patch("nanobanana_pro.generate.load_images")
+    def test_image_load_error_exits(self, mock_load: MagicMock) -> None:
+        mock_load.side_effect = FileNotFoundError("not found")
+        with pytest.raises(SystemExit):
+            main(["Edit", "--image", "/missing.png", "--no-open"])
 
     def test_empty_prompt(self) -> None:
         with patch("sys.stdin") as mock_stdin:

@@ -7,6 +7,7 @@ import subprocess
 
 from google import genai
 from google.genai import types
+from PIL import Image
 
 DEFAULT_MODEL = "gemini-3-pro-image-preview"
 DEFAULT_LOCATION = "us-central1"
@@ -89,8 +90,13 @@ def generate_image(
     model: str = DEFAULT_MODEL,
     aspect_ratio: str = "1:1",
     image_size: str = "2K",
+    images: list[Image.Image] | None = None,
 ) -> types.GenerateContentResponse:
-    """Generate an image using Gemini's generateContent API.
+    """Generate or edit an image using Gemini's generateContent API.
+
+    When *images* is provided the PIL objects are passed alongside the text
+    prompt, enabling image-editing workflows.  When *images* is ``None`` or
+    empty the call falls back to text-only generation.
 
     Return the full response containing image and optional text parts.
     """
@@ -113,6 +119,13 @@ def generate_image(
         ),
     )
 
+    if images:
+        parts: list[str | Image.Image] = [*images, prompt]
+        return client.models.generate_content(
+            model=model,
+            contents=parts,  # type: ignore[arg-type]  # list invariance
+            config=config,
+        )
     return client.models.generate_content(
         model=model,
         contents=prompt,

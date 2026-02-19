@@ -6,6 +6,7 @@ import os
 from unittest.mock import MagicMock, patch
 
 import pytest
+from PIL import Image
 
 from nanobanana_pro.client import (
     VALID_ASPECT_RATIOS,
@@ -104,3 +105,30 @@ class TestGenerateImage:
 
     def test_valid_image_sizes(self) -> None:
         assert VALID_IMAGE_SIZES == ["1K", "2K", "4K"]
+
+    def test_contents_with_images(self) -> None:
+        client = MagicMock()
+        img1 = Image.new("RGB", (4, 4))
+        img2 = Image.new("RGB", (4, 4))
+        generate_image(client, "Edit this", images=[img1, img2])
+        call_kwargs = client.models.generate_content.call_args.kwargs
+        contents = call_kwargs["contents"]
+        assert contents == [img1, img2, "Edit this"]
+
+    def test_contents_without_images(self) -> None:
+        client = MagicMock()
+        generate_image(client, "A red apple")
+        call_kwargs = client.models.generate_content.call_args.kwargs
+        assert call_kwargs["contents"] == "A red apple"
+
+    def test_contents_with_empty_images(self) -> None:
+        client = MagicMock()
+        generate_image(client, "A red apple", images=[])
+        call_kwargs = client.models.generate_content.call_args.kwargs
+        assert call_kwargs["contents"] == "A red apple"
+
+    def test_contents_with_none_images(self) -> None:
+        client = MagicMock()
+        generate_image(client, "A red apple", images=None)
+        call_kwargs = client.models.generate_content.call_args.kwargs
+        assert call_kwargs["contents"] == "A red apple"

@@ -14,6 +14,7 @@ from nanobanana_pro.client import (
     generate_image,
     location_for_model,
 )
+from nanobanana_pro.image_input import load_images
 from nanobanana_pro.utils import (
     ensure_output_dir,
     generate_filename,
@@ -88,6 +89,13 @@ def build_parser() -> argparse.ArgumentParser:
         help="GCP project ID (default: from env or gcloud config)",
     )
     parser.add_argument(
+        "--image",
+        action="append",
+        dest="images",
+        default=None,
+        help="Input image (local path or URL) for editing. Repeatable.",
+    )
+    parser.add_argument(
         "--no-open",
         action="store_true",
         help="Don't open the image in Preview.app after saving",
@@ -105,7 +113,17 @@ def main(argv: list[str] | None = None) -> None:
         print("Error: prompt is empty.", file=sys.stderr)
         sys.exit(1)
 
-    print(f"Generating image for: {prompt[:80]}...")
+    # Load input images when provided (for editing workflows)
+    loaded_images = None
+    if args.images:
+        try:
+            loaded_images = load_images(args.images)
+        except (FileNotFoundError, ValueError, RuntimeError) as exc:
+            print(f"Error loading image: {exc}", file=sys.stderr)
+            sys.exit(1)
+        print(f"Editing image with prompt: {prompt[:80]}...")
+    else:
+        print(f"Generating image for: {prompt[:80]}...")
 
     location = location_for_model(args.model)
     client = create_client(project=args.project, location=location)
@@ -115,6 +133,7 @@ def main(argv: list[str] | None = None) -> None:
         model=args.model,
         aspect_ratio=args.aspect_ratio,
         image_size=args.image_size,
+        images=loaded_images,
     )
 
     image_saved = False
