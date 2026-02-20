@@ -14,3 +14,4 @@ htmlcov/
 *.so
 .env
 .venv/
+.DS_Store

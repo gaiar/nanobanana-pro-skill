@@ -2,7 +2,8 @@
 
 ## Model
 
-- **Name**: `gemini-2.5-flash-image`
+- **Default**: `gemini-3-pro-image-preview` (highest quality, auto-uses `global` location)
+- **Fallback**: `gemini-2.5-flash-image` (fast, reliable)
 - **API**: `generateContent` (via `google-genai` SDK, not the Imagen `predict` API)
 - **Auth**: Application Default Credentials (ADC) via `gcloud auth application-default login`
 
@@ -76,15 +77,15 @@ response = client.models.generate_content(
 
 ```bash
 # Edit a local image
-python -m nanobanana_pro.generate "Remove the background" \
+uv run python -m nanobanana_pro.generate "Remove the background" \
   --image ~/Pictures/photo.png
 
 # Edit an image from a URL
-python -m nanobanana_pro.generate "Make it look like a painting" \
+uv run python -m nanobanana_pro.generate "Make it look like a painting" \
   --image https://example.com/photo.jpg
 
 # Multiple input images
-python -m nanobanana_pro.generate "Combine these" \
+uv run python -m nanobanana_pro.generate "Combine these" \
   --image ~/Pictures/a.png --image ~/Pictures/b.png
 ```
 
@@ -143,20 +144,20 @@ The model may return text instead of (or alongside) an image if:
 
 ```bash
 # Basic usage
-python -m nanobanana_pro.generate "A red apple on white background"
+uv run python -m nanobanana_pro.generate "A red apple on white background"
 
 # With options
-python -m nanobanana_pro.generate "Cinematic sunset" \
+uv run python -m nanobanana_pro.generate "Cinematic sunset" \
   --aspect-ratio 16:9 --image-size 4K
 
 # From file (used by the skill workflow)
-python -m nanobanana_pro.generate --prompt-file /tmp/nanoprompt.txt
+uv run python -m nanobanana_pro.generate --prompt-file /tmp/nanoprompt.txt
 
 # From stdin
-echo "A mountain landscape" | python -m nanobanana_pro.generate
+echo "A mountain landscape" | uv run python -m nanobanana_pro.generate
 
-# Without opening in Preview
-python -m nanobanana_pro.generate "test" --no-open
+# Without auto-opening the image
+uv run python -m nanobanana_pro.generate "test" --no-open
 ```
 
 Output directory: `~/Pictures/nanobanana-pro/`

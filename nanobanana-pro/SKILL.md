@@ -19,10 +19,12 @@ Before the prompt workflow, verify the environment is ready. Run these checks si
 uv --version
 
 # Check project exists and sync dependencies (creates .venv if missing, installs all deps)
-cd ~/Developer/nanobanana-pro-skill && uv sync
+cd <project-root> && uv sync
 ```
 
-If `uv` is missing: `brew install uv`. If the project directory is missing: inform the user and stop.
+If `uv` is missing, install it (see `references/setup-guide.md`). If the project directory is missing: inform the user and stop.
+
+`<project-root>` is the directory containing `pyproject.toml` and `src/nanobanana_pro/`. Locate it by searching for these markers.
 
 ### 2. Google Cloud
 
@@ -31,7 +33,7 @@ If `uv` is missing: `brew install uv`. If the project directory is missing: info
 gcloud config get-value project
 ```
 
-If gcloud is missing: `brew install google-cloud-sdk`.
+If gcloud is missing, install it (see `references/setup-guide.md`).
 If project is `(unset)`: prompt the user to run `gcloud init` or `gcloud config set project <PROJECT_ID>`.
 
 ```bash
@@ -245,7 +247,7 @@ The `--image` flag is repeatable. Supported formats: `.jpg`, `.jpeg`, `.png`, `.
      - Header: "Action"
      - Options:
        - "Generate image (Recommended)" — Run Vertex AI generation
-       - "Copy to clipboard" — Copy prompt text via pbcopy
+       - "Copy to clipboard" — Copy prompt text to clipboard
        - "Edit first" — Let user revise before generating
 6. **Generate image** — If user chose "Generate image":
    a. Ask for generation options using AskUserQuestion:
@@ -254,20 +256,20 @@ The `--image` flag is repeatable. Supported formats: `.jpg`, `.jpeg`, `.png`, `.
       - Options: "1:1 (square)", "4:3 (landscape)", "3:4 (portrait)", "16:9 (widescreen)"
    b. Write prompt to temp file and run:
       ```bash
-      cd ~/Developer/nanobanana-pro-skill && \
+      cd <project-root> && \
       uv run python -m nanobanana_pro.generate --prompt-file /tmp/nanoprompt.txt \
         --aspect-ratio "<chosen_ratio>" --image-size "2K"
       ```
       If the user provided reference images in step 1, append `--image <path_or_url>` for each:
       ```bash
-      cd ~/Developer/nanobanana-pro-skill && \
+      cd <project-root> && \
       uv run python -m nanobanana_pro.generate --prompt-file /tmp/nanoprompt.txt \
         --aspect-ratio "<chosen_ratio>" --image-size "2K" \
         --image "/path/to/reference.png"
       ```
-   c. Report the saved file path and confirm image opened in Preview.app
+   c. Report the saved file path and confirm the image was opened
 7. **Copy to clipboard** — If user chose "Copy to clipboard":
-   - Copy the exact prompt text to clipboard via `echo '...' | pbcopy`
+   - Copy the exact prompt text to clipboard using the platform's clipboard command
    - Confirm it was copied
 
 ## Generation Options
