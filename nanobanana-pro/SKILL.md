@@ -134,6 +134,52 @@ Always include to prevent common issues:
 altered face, different identity, idealized beauty, flawless skin, plastic or waxy texture, CGI, digital art, illustration, artificial lighting, broken anatomy, distorted hands, harsh shadows, overprocessed skin, cartoon style
 ```
 
+### 7. Defeating the AI Look
+
+Four principles to break through the uncanny valley and produce images that don't look generated:
+
+1. **Break symmetry** — Off-center framing, awkward crops, tilted angles, facial asymmetry
+2. **Real skin, not porcelain** — Visible pores, redness, blemishes, peach fuzz, dark circles
+3. **Kill saturation and sheen** — Muted palettes, no HDR glow, matte skin, faded film tones
+4. **Add grain and artifacts** — Film grain, chromatic aberration, vignetting, slight focus misses
+
+Apply all four together for maximum effect. See `references/techniques.md` § "Defeating the AI Look" for full directive vocabulary and a ready-to-use prompt fragment.
+
+### 8. Physical Medium Authenticity (Critical)
+
+**The model defaults to clean, polished output regardless of requested style.** You must actively fight this for every image that depicts a physical medium (prints, paintings, film photography, hand-drawn art, etc.).
+
+#### The Principle
+
+Describe the **physical process** that creates imperfections — not just the effects. Causal language ("ink fails to transfer because hand-pressing pressure is uneven") produces far more authentic results than effect language ("add some imperfections").
+
+#### Three Rules
+
+1. **Imperfections FIRST, subject SECOND** — The model weights prompt elements by position and text volume. If authenticity is critical, make it the leading instruction with the most text, not a sub-field buried in a schema. Start the prompt with the medium and its physical characteristics before describing what the image depicts.
+
+2. **Describe the physical process, not just the result** — For every imperfection, explain HOW it arises in the real physical process:
+   - Print: "ink fails to transfer in spots due to uneven hand-pressing pressure"
+   - Watercolor: "pigment pools at edges where wet paint settles as paper dries"
+   - Oil painting: "thick impasto ridges where the palette knife dragged through wet paint"
+   - Film photo: "focus slightly missed because the photographer shifted mid-click"
+
+3. **Explicitly negate the clean default** — The model will revert to digital perfection unless told not to. Always include explicit negations: "NOT clean, NOT digital, NOT polished, NOT crisp, NOT perfect."
+
+#### When to Use ALL CAPS Emphasis
+
+Use CAPS for qualities the model consistently underweights:
+- Physical imperfections and texture
+- Color restrictions (e.g., "ONLY black and pink, NO other colors")
+- Qualities that contradict the model's clean default
+
+#### Format Choice for Textured/Physical Media
+
+For images that require heavy physical authenticity (prints, paintings, analog media), **prefer natural language prose over JSON**. JSON's structured format implicitly signals "organized, precise, clean" and the model follows that signal. Natural language with emphasis markers allows you to weight imperfections more heavily.
+
+When the user requests JSON format for physical media, use a **hybrid approach**: place the medium authenticity requirements as a leading natural language block, then follow with the JSON schema for composition details.
+
+See `references/techniques.md` § "Physical Medium Authenticity" for medium-specific imperfection vocabularies and ready-to-use prompt fragments.
+
 ## Image Editing
 
 Edit existing images by passing one or more reference images alongside a text prompt. The Gemini model accepts PIL Image objects as multimodal input, so you can apply transformations like "remove the background", "add a hat", or "apply watercolor style".
@@ -183,7 +229,17 @@ The `--image` flag is repeatable. Supported formats: `.jpg`, `.jpeg`, `.png`, `.
    - Add negative prompts as a top-level `"negative_prompts"` string
    - Output: the complete JSON object
 
-4. **Present prompt** — Show the final prompt to the user, then ask what to do next:
+4. **Authenticity pass** — Before presenting, review the prompt for physical medium authenticity:
+   - Does the concept involve a physical medium (print, painting, film, handmade art)? If yes:
+     - Verify imperfections are described with **causal language** (how they arise physically)
+     - Verify imperfections have **prominent placement** (leading position, significant text weight)
+     - Verify explicit **negation of clean defaults** is present ("NOT clean, NOT digital...")
+     - If using JSON format, ensure a natural language authenticity block leads the prompt
+   - Does the concept involve photography? If yes:
+     - Verify the "Defeating the AI Look" checklist is applied (asymmetry, skin texture, desaturation, grain)
+   - For ALL concepts: ensure the prompt describes what the image should NOT look like, not just what it should
+
+5. **Present prompt** — Show the final prompt to the user, then ask what to do next:
    - Use AskUserQuestion with:
      - Question: "What would you like to do with this prompt?"
      - Header: "Action"
@@ -191,7 +247,7 @@ The `--image` flag is repeatable. Supported formats: `.jpg`, `.jpeg`, `.png`, `.
        - "Generate image (Recommended)" — Run Vertex AI generation
        - "Copy to clipboard" — Copy prompt text via pbcopy
        - "Edit first" — Let user revise before generating
-5. **Generate image** — If user chose "Generate image":
+6. **Generate image** — If user chose "Generate image":
    a. Ask for generation options using AskUserQuestion:
       - Question: "Which aspect ratio?"
       - Header: "Ratio"
@@ -210,7 +266,7 @@ The `--image` flag is repeatable. Supported formats: `.jpg`, `.jpeg`, `.png`, `.
         --image "/path/to/reference.png"
       ```
    c. Report the saved file path and confirm image opened in Preview.app
-6. **Copy to clipboard** — If user chose "Copy to clipboard":
+7. **Copy to clipboard** — If user chose "Copy to clipboard":
    - Copy the exact prompt text to clipboard via `echo '...' | pbcopy`
    - Confirm it was copied
 

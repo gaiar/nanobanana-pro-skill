@@ -9,6 +9,7 @@ Best-performing prompts from Twitter and prompt engineering communities.
 3. [Street Style with Car](#example-3-street-style-with-car)
 4. [Balcony Night Scene](#example-4-balcony-night-scene)
 5. [Elevator Mirror Selfie](#example-5-elevator-mirror-selfie)
+6. [Product Branding Storyboard Grid](#example-6-product-branding-storyboard-grid)
 
 ---
 
@@ -439,6 +440,67 @@ VIBE:
 
 ---
 
+## Example 6: Product Branding Storyboard Grid
+
+**Concept**: 3x3 grid mockup presentation for product branding portfolio
+
+**Key techniques**: Multi-panel composition, consistent product identity across frames, editorial designer aesthetic, varied camera angles within a cohesive series
+
+**Usage**: Requires a reference product image via `--image` flag. The model preserves the product's packaging, branding, materials, colors and proportions across all nine panels.
+
+```
+Create ONE final image.
+
+A clean 3×3 [ratio] storyboard grid with nine equal [ratio] sized panels on [4:5] ratio.
+
+Use the reference image as the base product reference. Keep the same product, packaging design, branding, materials, colors, proportions and overall identity across all nine panels exactly as the reference. The product must remain clearly recognizable in every frame. The label, logo and proportions must stay exactly the same.
+
+This storyboard is a high-end designer mockup presentation for a branding portfolio. The focus is on form, composition, materiality and visual rhythm rather than realism or lifestyle narrative. The overall look should feel curated, editorial and design-driven.
+
+FRAME 1:
+Front-facing hero shot of the product in a clean studio setup. Neutral background, balanced composition, calm and confident presentation of the product.
+
+FRAME 2:
+Close-up shot with the focus centered on the middle of the product. Focusing on surface texture, materials and print details.
+
+FRAME 3:
+Shows the reference product placed in an environment that naturally fits the brand and product category. Studio setting inspired by the product design elements and colours.
+
+FRAME 4:
+Product shown in use or interaction on a neutral studio background. Hands and interaction elements are minimal and restrained, the look matches the style of the package.
+
+FRAME 5:
+Isometric composition showing multiple products arranged in a precise geometric order from the top isometric angle. All products are placed at the same isometric top angle, evenly spaced, clean, structured and graphic.
+
+FRAME 6:
+Product levitating slightly tilted on a neutral background that matches the reference image color palette. Floating position is angled and intentional, the product is floating naturally in space.
+
+FRAME 7:
+is an extreme close-up focusing on a specific detail of the label, edge, texture or material behavior.
+
+FRAME 8:
+The product in an unexpected yet aesthetically strong setting that feels bold, editorial and visually striking.
+Unexpected but highly stylized setting. Studio-based, and designer-driven. Bold composition that elevates the brand.
+
+FRAME 9:
+Wide composition showing the product in use, placed within a refined designer setup. Clean props, controlled styling, cohesive with the rest of the series.
+
+CAMERA & STYLE:
+Ultra high-quality studio imagery with a real camera look. Different camera angles and framings across frames. Controlled depth of field, precise lighting, accurate materials and reflections. Lighting logic, color palette, mood and visual language must remain consistent across all nine panels as one cohesive series.
+
+OUTPUT:
+A clean 3×3 grid with no borders, no text, no captions and no watermarks.
+```
+
+**Notes**:
+- Replace `[ratio]` in the first line with the desired panel aspect ratio (e.g., `1:1`, `4:5`, `3:4`)
+- The outer grid ratio is fixed at `4:5` — this works well for Instagram and portfolio presentations
+- Always pass the product reference image via `--image` flag
+- This is a natural language prompt — JSON format is not needed because the structure comes from the frame-by-frame directives
+- The prompt is designed to be used as-is with minimal customization — just swap the ratio placeholder
+
+---
+
 ## Prompt Engineering Patterns From These Examples
 
 ### Pattern 1: The Identity Lock Opening
@@ -461,3 +523,6 @@ Add realistic imperfections: sleep creases, chapped lips, coffee stains, frizzy 
 
 ### Pattern 7: The Negative Prompt Shield
 Always include negative prompts to prevent common AI artifacts.
+
+### Pattern 8: The Multi-Panel Grid
+For storyboard/grid compositions, describe each frame individually with specific camera angle, framing, and purpose. Include a global "CAMERA & STYLE" section to enforce visual consistency across all panels. Specify the output format explicitly ("clean 3x3 grid, no borders, no text").
